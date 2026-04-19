@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Имя версии (например, v0.1.0). Без публикации релиза.'
+        required: false
+        default: 'preview'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Собрать PDF и EPUB
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache apt
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: apt-${{ runner.os }}-pandoc-texlive-v1
+
+      - name: Установить pandoc и XeLaTeX
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            pandoc \
+            texlive-xetex \
+            texlive-fonts-recommended \
+            texlive-lang-cyrillic \
+            fonts-dejavu \
+            lmodern \
+            make
+
+      - name: Версия сборки
+        id: version
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME}"
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Building version: ${VERSION}"
+
+      - name: Собрать PDF и EPUB
+        run: make all
+
+      - name: Переименовать артефакты под версию
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          cp build/guide.pdf  "build/gran-canaria-${VERSION}.pdf"
+          cp build/guide.epub "build/gran-canaria-${VERSION}.epub"
+          ls -la build/
+
+      - name: Загрузить артефакты сборки
+        uses: actions/upload-artifact@v4
+        with:
+          name: gran-canaria-${{ steps.version.outputs.version }}
+          path: |
+            build/gran-canaria-*.pdf
+            build/gran-canaria-*.epub
+          retention-days: 30
+
+      - name: Опубликовать релиз GitHub
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/gran-canaria-*.pdf
+            build/gran-canaria-*.epub
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          name: "Гран-Канария ${{ steps.version.outputs.version }}"
+          body: |
+            Путеводитель по Гран-Канарии, версия `${{ steps.version.outputs.version }}`.
+
+            **Файлы:**
+            - `gran-canaria-${{ steps.version.outputs.version }}.pdf` — для чтения и печати (A5, 11 pt).
+            - `gran-canaria-${{ steps.version.outputs.version }}.epub` — для электронных книг и магазинов.
+
+            Автоматически собрано из исходников ветки по тегу `${{ github.ref_name }}`.
