@@ -1,0 +1,8 @@
+build/
+*.pdf
+*.epub
+*.aux
+*.log
+*.out
+*.toc
+.DS_Store

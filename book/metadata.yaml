@@ -1,0 +1,41 @@
+---
+title: "Гран-Канария"
+subtitle: "Путеводитель для самостоятельного путешественника"
+author: "<АВТОР>"
+date: "<ГОД>"
+lang: ru-RU
+documentclass: book
+classoption:
+  - oneside
+  - 11pt
+geometry:
+  - a5paper
+  - margin=2cm
+mainfont: "DejaVu Serif"
+sansfont: "DejaVu Sans"
+monofont: "DejaVu Sans Mono"
+toc: true
+toc-depth: 2
+toc-title: "Содержание"
+numbersections: true
+secnumdepth: 2
+colorlinks: true
+linkcolor: "black"
+urlcolor: "black"
+subject: "Путешествия, Канарские острова"
+keywords:
+  - Гран-Канария
+  - Канарские острова
+  - путеводитель
+  - Испания
+  - Baedeker
+rights: "© <ГОД> <АВТОР>. Все права защищены."
+publisher: "<ИЗДАТЕЛЬСТВО>"
+identifier: "<ISBN>"
+description: |
+  Классический путеводитель по острову Гран-Канария в духе Baedeker:
+  исторические и культурные очерки, описания всех важнейших
+  достопримечательностей со звёздными рейтингами, десять проработанных
+  маршрутов с километражем и таймингом, практическая информация для
+  самостоятельного путешественника.
+...
